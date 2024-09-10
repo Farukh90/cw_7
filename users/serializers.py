@@ -7,7 +7,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
     """
     Сериалайзер создаваемого пользователя
     """
-
+    password = serializers.CharField(write_only=True)
     class Meta:
         model = User
-        fields = ["email", "password"]
+        fields = ["email", "password", "telegram_id"]
