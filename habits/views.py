@@ -1,6 +1,6 @@
 from django.utils import timezone
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from habits.models import Habit
 from habits.pagination import MyPaginator
@@ -31,7 +31,7 @@ class HabitUpdateAPIView(generics.UpdateAPIView):
 
     serializer_class = HabitSerializer
     queryset = Habit.objects.all()
-    permission_classes = (IsOwner,)
+    permission_classes = (IsAuthenticated, IsOwner)
 
 
 class HabitDestroyAPIView(generics.DestroyAPIView):
@@ -41,7 +41,7 @@ class HabitDestroyAPIView(generics.DestroyAPIView):
 
     serializer_class = HabitSerializer
     queryset = Habit.objects.all()
-    permission_classes = (IsOwner,)
+    permission_classes = (IsAuthenticated, IsOwner)
 
 
 class MyHabitsListView(generics.ListAPIView):
@@ -54,3 +54,13 @@ class MyHabitsListView(generics.ListAPIView):
 
     def get_queryset(self):
         return Habit.objects.filter(user=self.request.user)
+
+
+class PublicListAPIView(generics.ListAPIView):
+    """Список публичных привычек.
+    """
+
+    serializer_class = HabitSerializer
+    queryset = Habit.objects.filter(is_public=True)
+    permission_classes = (AllowAny,)
+    pagination_class = MyPaginator

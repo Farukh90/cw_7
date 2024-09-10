@@ -153,8 +153,7 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 CELERY_BEAT_SCHEDULE = {
     "daily_task": {
         "task": "habits.tasks.send_reminder",
-        "schedule": timedelta(seconds=10),  # Запуск каждые 5 секунд
-        # 'schedule': timedelta(days=1),
+        'schedule': timedelta(days=1),
     },
 }
 
