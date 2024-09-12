@@ -23,13 +23,14 @@ def send_reminder():
     for habit in habits:
         user_tg = habit.user.telegram_id
 
+        habit_time_local = habit.time.astimezone(tz)
+
         if (
             user_tg
-            and now_local >= habit.time - timedelta(minutes=10)
-            and now_local.date() == habit.time.date()
+            and now_local >= habit_time_local - timedelta(minutes=10)
+            and now_local.date() == habit_time_local.date()
         ):
-
-            formatted_time = habit.time.strftime("%d.%m.%Y %H:%M")
+            formatted_time = habit_time_local.strftime("%d.%m.%Y %H:%M")
 
             if habit.pleasant_habit:
                 message = f"Молодец, ты заслужил {habit.action} в {formatted_time} {habit.place}"
@@ -43,5 +44,6 @@ def send_reminder():
                     user_tg, f"Молодец! Ты заслужил награду: {habit.reward}"
                 )
 
+            # Переносим дату выполнения привычки
             habit.time += timedelta(days=habit.periodicity)
             habit.save()
