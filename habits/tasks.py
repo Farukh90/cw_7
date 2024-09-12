@@ -1,41 +1,47 @@
+from datetime import datetime, timedelta
+import pytz
 from celery import shared_task
-from django.utils import timezone
+from django.conf import settings
 
-from habits.services import send_telegram_message
-from users.models import User
+from config.settings import TIME_ZONE
+from .models import Habit
+from .services import send_telegram_message
 
 
 @shared_task
 def send_reminder():
     """
-    Отправляет уведомления о запланированных "привычках"
+    За 10 минут до начала выполнения привычки отправляет предупреждение
+    и переносит дату следующего выполнения на количество дней, указанное в периодичности выполнения привычки.
     """
-    for user in User.objects.all():
 
-        message = "Ваши планы:\n"
-        for habit in user.habits.filter(pleasant_habit=False):
-            time_left = timezone.now().date() - habit.started_at
-            when = (
-                f"через {habit.periodicity - time_left.days} д."
-                if time_left.days
-                else "сегодня"
-            )
-            message += f"{when} {habit.place}, в {habit.time}: {habit.action}\n"
-        send_telegram_message(user.telegram_id, message)
+    tz = pytz.timezone(settings.TIME_ZONE)
+    now_local = datetime.now(tz)
 
+    habits = Habit.objects.all()
 
-def send_reminder_manually():
-    """
-    Отправляет уведомления о запланированных "привычках"
-    """
-    for user in User.objects.all():
-        message = "Ваши планы:\n"
-        for habit in user.habits.filter(pleasant_habit=False):
-            time_left = timezone.now().date() - habit.started_at
-            when = (
-                f"через {habit.periodicity - time_left.days} д."
-                if time_left.days
-                else "сегодня"
-            )
-            message += f"{when} {habit.place}, в {habit.time}: {habit.action}\n"
-        send_telegram_message(user.telegram_id, message)
+    for habit in habits:
+        user_tg = habit.user.telegram_id
+
+        if (
+                user_tg
+                and now_local >= habit.time - timedelta(minutes=10)
+                and now_local.date() == habit.time.date()
+        ):
+
+            habit.time = habit.time + timedelta(hours=3)
+            formatted_time = habit.time.strftime('%d.%m.%Y %H:%M')
+
+            if habit.pleasant_habit:
+                message = f"Молодец, ты заслужил {habit.action} в {formatted_time} {habit.place}"
+            else:
+                message = f"Не забудь {habit.action} в {formatted_time} {habit.place}"
+
+            send_telegram_message(user_tg, message)
+
+            if habit.reward:
+                send_telegram_message(user_tg, f"Молодец! Ты заслужил награду: {habit.reward}")
+
+            habit.time += timedelta(days=habit.periodicity)
+            habit.time -= timedelta(hours=3)
+            habit.save()
