@@ -1,6 +1,6 @@
 from django.utils import timezone
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from habits.models import Habit
 from habits.pagination import MyPaginator
@@ -57,8 +57,7 @@ class MyHabitsListView(generics.ListAPIView):
 
 
 class PublicListAPIView(generics.ListAPIView):
-    """Список публичных привычек.
-    """
+    """Список публичных привычек."""
 
     serializer_class = HabitSerializer
     queryset = Habit.objects.filter(is_public=True)

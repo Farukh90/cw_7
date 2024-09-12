@@ -25,9 +25,15 @@ class Habit(models.Model):
         verbose_name="Полезная привычка", default=False
     )
     related_habit = models.ForeignKey(
-        "self", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Связанная привычка"
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Связанная привычка",
     )
-    reward = models.CharField(verbose_name="Вознаграждение", max_length=255, null=True, blank=True)
+    reward = models.CharField(
+        verbose_name="Вознаграждение", max_length=255, null=True, blank=True
+    )
 
     is_public = models.BooleanField(verbose_name="Признак публичности", default=False)
 
