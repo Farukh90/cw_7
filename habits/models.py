@@ -15,8 +15,8 @@ class Habit(models.Model):
     )
 
     place = models.CharField(max_length=50, verbose_name="Место")
-    time = models.TimeField(verbose_name="Время")
-    duration = models.IntegerField(verbose_name="Время на выполнение", default=10)
+    time = models.DateTimeField(verbose_name="Время")
+    duration = models.IntegerField(verbose_name="Время на выполнение")
     periodicity = models.SmallIntegerField(verbose_name="Периодичность", default=1)
     action = models.CharField(max_length=100, verbose_name="Действие")
     started_at = models.DateField(default=timezone.now)
@@ -25,11 +25,11 @@ class Habit(models.Model):
         verbose_name="Полезная привычка", default=False
     )
     related_habit = models.ForeignKey(
-        "self", on_delete=models.SET_NULL, null=True, verbose_name="Связанная привычка"
+        "self", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Связанная привычка"
     )
-    reward = models.CharField(verbose_name="Вознаграждение", null=True)
+    reward = models.CharField(verbose_name="Вознаграждение", max_length=255, null=True, blank=True)
 
-    is_public = models.BooleanField(verbose_name="Признак публичности")
+    is_public = models.BooleanField(verbose_name="Признак публичности", default=False)
 
     class Meta:
         verbose_name = "Привычка"
