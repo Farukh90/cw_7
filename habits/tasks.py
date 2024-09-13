@@ -35,7 +35,10 @@ def send_reminder():
             if habit.pleasant_habit:
                 message = f"Молодец, ты заслужил {habit.action} в {formatted_time} {habit.place}"
             else:
-                message = f"Не забудь!!! \nДействие: {habit.action} \nДата и время: {formatted_time}. \nМесто: {habit.place}"
+                message = (f"Не забудь!!!\n"
+                           f"Действие: {habit.action}\n"
+                           f"Дата и время: {formatted_time}.\n"
+                           f"Место: {habit.place}")
 
             send_telegram_message(user_tg, message)
 
@@ -44,6 +47,5 @@ def send_reminder():
                     user_tg, f"Молодец! Ты заслужил награду: {habit.reward}"
                 )
 
-            # Переносим дату выполнения привычки
             habit.time += timedelta(days=habit.periodicity)
             habit.save()
